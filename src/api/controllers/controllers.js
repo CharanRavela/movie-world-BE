@@ -303,7 +303,6 @@ module.exports.theatre_search = async ( req, res) => {
 module.exports.booking = async ( req, res) => {
     try{
         let available = false;
-        let booked;
         const validate = booking_check(req.body);
         validate.then( async (done) => {
 
@@ -318,7 +317,7 @@ module.exports.booking = async ( req, res) => {
                         let availability = element.no_of_seats - element.no_of_seats_booked;
                         if( done.no_of_seats_booked <= availability){
                             available = true;
-                            booked = element.no_of_seats_booked + done.no_of_seats_booked;
+                            element.no_of_seats_booked += done.no_of_seats_booked;
                         }
                         else{
                             available = false;
@@ -341,18 +340,20 @@ module.exports.booking = async ( req, res) => {
                             return res.status(400).send({ success:false, message: "Tickeyts not booked!", error: "DB save failed!"});
                         }
                         else{
-
-                            // await playtime.updateOne({
-                            //     theatre_id: done.theatre_id,
-                            //     movie_id: done.movie_id,
-                            //     details: { $elemMatch: {_id: done.screen_id} }
-                            // },{
-                            //     $set: {"details.no_of_seats_booked": booked}
-                            // }, (err, pass) =>{
-                            //     if(err){
-                            //         console.log(err);
-                            //     }
-                            // })
+                            await playtime.updateOne({
+                                theatre_id: done.theatre_id,
+                                movie_id: done.movie_id,
+                                details: { $elemMatch: {_id: done.screen_id} }
+                            },{
+                                $set: {"detail.$.no_of_seats_booked": element.no_of_seats_booked }
+                            }, (err, pass) =>{
+                                if(err){
+                                    console.log(err);
+                                }
+                                else{
+                                    console.log(pass);
+                                }
+                            })
                             sendInvoice(element);
                             await console.log("User booking Activity Saved and sent an email.")
                             return res.status(200).send({ success:true, message: "Tickets booked!", response: element});

@@ -32,7 +32,6 @@ const decrypt = text => {
 }
 
 const sendInvoice = (data) => {
-    console.log(process.env.isSendMail);
     if (process.env.isSendMail == "true") {
         return new Promise((resolve, reject) => {
             let transporter = nodemailer.createTransport({
@@ -75,8 +74,8 @@ const sendInvoice = (data) => {
                     console.log(error);
                     return reject({ success: false, message: error });
                 } else {
-                    console.log("The message was sent!");
-                    console.log(info);
+                    // console.log("The message was sent!");
+                    // console.log(info);
                     return resolve({ success: true, message: info });
                 }
             });
