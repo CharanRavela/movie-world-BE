@@ -351,7 +351,7 @@ module.exports.booking = async ( req, res) => {
                                     console.log(err);
                                 }
                                 else{
-                                    console.log(pass);
+                                    // console.log(pass);
                                 }
                             })
                             sendInvoice(element);
