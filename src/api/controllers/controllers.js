@@ -303,6 +303,7 @@ module.exports.theatre_search = async ( req, res) => {
 module.exports.booking = async ( req, res) => {
     try{
         let available = false;
+        let booked ;
         const validate = booking_check(req.body);
         validate.then( async (done) => {
 
@@ -311,13 +312,14 @@ module.exports.booking = async ( req, res) => {
                 movie_id: done.movie_id,
                 details: { $elemMatch: {_id: done.screen_id} }
             }).then(( dbRes ) =>{
+                console.log(dbRes);
                 dbRes.details.forEach(element => {
                     if(element._id == done.screen_id)
                     {
                         let availability = element.no_of_seats - element.no_of_seats_booked;
                         if( done.no_of_seats_booked <= availability){
                             available = true;
-                            element.no_of_seats_booked += done.no_of_seats_booked;
+                             booked = element.no_of_seats_booked + done.no_of_seats_booked;
                         }
                         else{
                             available = false;
@@ -345,7 +347,7 @@ module.exports.booking = async ( req, res) => {
                                 movie_id: done.movie_id,
                                 details: { $elemMatch: {_id: done.screen_id} }
                             },{
-                                $set: {"detail.$.no_of_seats_booked": element.no_of_seats_booked }
+                                $set: {"details.$.no_of_seats_booked": booked }
                             }, (err, pass) =>{
                                 if(err){
                                     console.log(err);
